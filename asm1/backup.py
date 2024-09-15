@@ -24,9 +24,9 @@ pygame.display.set_caption("Đập đầu Zombie")
 font = pygame.font.Font(None, 36)
 
 # Tải hình ảnh
-background_image = pygame.image.load('background.png')  # Tải hình ảnh background từ file PNG
+background_image = pygame.image.load('img/background.png')  # Tải hình ảnh background từ file PNG
 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Điều chỉnh kích thước background
-zombie_image = pygame.image.load('zombie.png')  # Tải hình ảnh zombie từ file PNG
+zombie_image = pygame.image.load('img/zombie.png')  # Tải hình ảnh zombie từ file PNG
 zombie_image = pygame.transform.scale(zombie_image, (CELL_SIZE, CELL_SIZE))  # Điều chỉnh kích thước zombie phù hợp với ô
 
 clock = pygame.time.Clock()

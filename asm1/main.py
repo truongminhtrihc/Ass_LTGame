@@ -79,7 +79,7 @@ def draw_zombie(position):
 
     # Tính toán vị trí y của zombie xuất hiện từ "lỗ" (tile_image)
     if zombie_appearing:
-        y_offset = (CELL_SIZE // 4) * (1 - animation_frame / ANIMATION_FRAMES)  # Bắt đầu từ gần tile
+        y_offset = (CELL_SIZE // 2) * (1 - animation_frame / ANIMATION_FRAMES)  # Zombie xuất hiện từ dưới lên
     else:
         y_offset = 0  # Khi animation kết thúc, zombie đứng yên ở vị trí giữa ô
 
@@ -88,20 +88,19 @@ def draw_zombie(position):
     
     screen.blit(zombie_image, zombie_rect)
 
-def fade_in_zombie(position, alpha):
+def fade_in_zombie(position, alpha, scale_factor):
     row = position // COLS
     col = position % COLS
 
-    faded_zombie = zombie_image.copy()
-    faded_zombie.set_alpha(alpha)
+    # Tạo bản sao của zombie và chỉnh kích thước
+    scaled_zombie = pygame.transform.scale(zombie_image, 
+                                           (int(CELL_SIZE * scale_factor), int(CELL_SIZE * scale_factor)))
+    scaled_zombie.set_alpha(alpha)
 
-    # Zombie di chuyển từ vị trí tile_image
-    y_offset = (CELL_SIZE // 4) * (1 - animation_frame / ANIMATION_FRAMES)
-    y_offset = max(0, y_offset)  # Đảm bảo y_offset không nhỏ hơn 0
-
-    zombie_rect = faded_zombie.get_rect(midbottom=(col * CELL_SIZE + CELL_SIZE // 2, (row * CELL_SIZE) + CELL_SIZE + y_offset))
-    screen.blit(faded_zombie, zombie_rect)
-
+    # Tính toán vị trí zombie để xuất hiện ở giữa ô
+    zombie_rect = scaled_zombie.get_rect(center=(col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2))
+    
+    screen.blit(scaled_zombie, zombie_rect)
 
 def draw_hammer(hit=False):
     mouse_pos = pygame.mouse.get_pos()  # Lấy vị trí hiện tại của con trỏ chuột
@@ -221,6 +220,7 @@ def game_loop(level_time):
     # Ẩn con trỏ chuột mặc định
     pygame.mouse.set_visible(False)
     gamerun_sound.stop()
+
     # Các biến khởi tạo như trước
     zombie_position = random.randint(0, ROWS * COLS - 1)
     score = 0
@@ -238,8 +238,10 @@ def game_loop(level_time):
         draw_grid()  # Vẽ các ô trống
         
         if zombie_appearing:
+            # Tính toán alpha và scale dựa trên frame của animation
             alpha = int(255 * (animation_frame / ANIMATION_FRAMES))
-            fade_in_zombie(zombie_position, alpha)
+            scale_factor = animation_frame / ANIMATION_FRAMES  # Scale từ 0 đến 1
+            fade_in_zombie(zombie_position, alpha, scale_factor)
         else:
             draw_zombie(zombie_position)
 

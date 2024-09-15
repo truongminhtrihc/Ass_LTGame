@@ -65,6 +65,17 @@ animation_frame = 0
 ANIMATION_FRAMES = 20  # Số lượng frame cho animation
 animation_speed = 1.0  # Tốc độ của animation sẽ thay đổi theo cấp độ
 
+# Tải hình ảnh stun
+stun_image = pygame.image.load('img/stunnedhit.png')
+stun_image = pygame.transform.scale(stun_image, (CELL_SIZE + 20, CELL_SIZE + 20))  # Điều chỉnh kích thước stun
+
+# Thêm biến để quản lý stun
+stun_duration = 0.5  # Thời gian stun sau khi hit, tính bằng giây
+stun_timer = 0
+stun_active = False
+last_zombie_position = -1  # Biến để lưu vị trí zombie bị đập trúng, -1 là giá trị khởi tạo
+stun_alpha = 0  # Giá trị alpha của stun, ban đầu là 0 (hoàn toàn trong suốt)
+
 def draw_grid():
     # Vẽ các ô trống trước khi zombie xuất hiện
     for row in range(ROWS):
@@ -215,14 +226,21 @@ def select_level():
         pygame.display.flip()
         clock.tick(15)
 
+def draw_stun(position, alpha):
+    """Vẽ hình ảnh stun quanh zombie bị hit với hiệu ứng fade-in"""
+    row = position // COLS
+    col = position % COLS
+    stun_image.set_alpha(alpha)  # Thiết lập độ trong suốt cho stun
+    stun_rect = stun_image.get_rect(center=(col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2))
+    screen.blit(stun_image, stun_rect)
+    
 def game_loop(level_time):
-    global zombie_position, score, misses, zombie_appearing, animation_frame, animation_speed
-    # Ẩn con trỏ chuột mặc định
+    global zombie_position, score, misses, zombie_appearing, animation_frame, animation_speed, stun_active, stun_timer, last_zombie_position, stun_alpha
     pygame.mouse.set_visible(False)
     gamerun_sound.stop()
 
-    # Các biến khởi tạo như trước
     zombie_position = random.randint(0, ROWS * COLS - 1)
+    last_zombie_position = -1  # Khởi tạo vị trí zombie bị đập
     score = 0
     misses = 0
     timer = 30
@@ -231,27 +249,26 @@ def game_loop(level_time):
     animation_frame = 0
     animation_speed = 1 / level_time
     ANIMATION_FRAMES = 20
-    hammer_hit = False  # Biến để theo dõi trạng thái đập búa
+    hammer_hit = False
+    stun_active = False
+    stun_timer = 0
+    stun_alpha = 0  # Khởi tạo giá trị alpha cho stun (hoàn toàn trong suốt)
 
     while True:
         screen.blit(background_image, (0, 0))  # Vẽ background trước
         draw_grid()  # Vẽ các ô trống
-        
+
         if zombie_appearing:
-            # Tính toán alpha và scale dựa trên frame của animation
             alpha = int(255 * (animation_frame / ANIMATION_FRAMES))
-            scale_factor = animation_frame / ANIMATION_FRAMES  # Scale từ 0 đến 1
+            scale_factor = animation_frame / ANIMATION_FRAMES
             fade_in_zombie(zombie_position, alpha, scale_factor)
         else:
             draw_zombie(zombie_position)
 
         draw_timer(timer)
         draw_score(score, misses)
-
-        # Vẽ cây búa theo vị trí chuột và trạng thái đập
         draw_hammer(hammer_hit)
-
-        hammer_hit = False  # Reset trạng thái đập mỗi frame
+        hammer_hit = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -263,18 +280,29 @@ def game_loop(level_time):
                 row = y // CELL_SIZE
                 clicked_position = row * COLS + col
 
-                hammer_hit = True  # Kích hoạt trạng thái đập khi nhấn chuột
+                hammer_hit = True
 
                 if clicked_position == zombie_position and not zombie_appearing:
                     score += 1
-                    zombie_position = random.randint(0, ROWS * COLS - 1)
+                    stun_active = True  # Kích hoạt stun
+                    stun_timer = stun_duration  # Đặt thời gian stun
+                    stun_alpha = 0  # Đặt giá trị alpha ban đầu cho stun (hoàn toàn trong suốt)
+                    last_zombie_position = zombie_position  # Lưu vị trí zombie vừa bị đập
+                    new_position = random.randint(0, ROWS * COLS - 1)
+                    zombie_position = new_position
+                    hit_sound.play()
                     zombie_appearing = True
                     animation_frame = 0
                     zombie_timer = 0
-                    hit_sound.play()
                 else:
                     misses += 1
                     miss_sound.play()
+
+        # Hiển thị stun với fade-in
+        if stun_active:
+            if stun_alpha < 255:
+                stun_alpha += 35  # Tăng dần giá trị alpha để tạo hiệu ứng fade-in
+            draw_stun(last_zombie_position, stun_alpha)
 
         button("End", 650, 10, 100, 50, RED, (200, 0, 0), end_game)
 
@@ -289,11 +317,18 @@ def game_loop(level_time):
             if animation_frame >= ANIMATION_FRAMES:
                 zombie_appearing = False
 
-        if zombie_timer > level_time and not zombie_appearing:
+        # Chỉ thay đổi vị trí zombie sau khi hiệu ứng stun kết thúc
+        if zombie_timer > level_time and not zombie_appearing and not stun_active:
             zombie_position = random.randint(0, ROWS * COLS - 1)
             zombie_appearing = True
             animation_frame = 0
             zombie_timer = 0
+
+        # Cập nhật stun timer
+        if stun_active:
+            stun_timer -= 1 / 30
+            if stun_timer <= 0:
+                stun_active = False  # Kết thúc stun sau khi hết thời gian
 
         pygame.display.flip()
         clock.tick(30)

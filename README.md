@@ -1,3 +1,3 @@
 # BTL LTG
 
-![test](blank.png)
+![test](black.png)

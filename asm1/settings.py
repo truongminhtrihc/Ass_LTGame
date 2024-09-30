@@ -6,7 +6,8 @@ import os
 # Khởi tạo Pygame
 pygame.init()
 # Tên file để lưu điểm cao nhất
-HIGH_SCORE_FILE = 'high_score/high_score.txt'
+
+HIGH_SCORE_FILE = os.path.join(os.path.dirname(__file__), 'high_score/highscore.txt')
 # Thiết lập kích thước màn hình
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 ROWS, COLS = 4, 4

@@ -1,0 +1,11 @@
+version: '3'
+
+vars:
+  ASS1: asm1/main.py
+
+tasks:
+  hello:
+    cmds:
+      - echo 'Hello World from Task!'
+    silent: true
+  run_asm1: python {{.ASS1}}

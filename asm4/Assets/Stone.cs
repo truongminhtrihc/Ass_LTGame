@@ -5,53 +5,51 @@ using System.Collections.Generic;
 public class Stone : MonoBehaviour
 {
     public Route currentRoute;
+    public bool IsMoving { get; private set; }
 
-    int routePosition;
+    private int routePosition;
+    private SpriteRenderer spriteRenderer;
+    private static int baseSortingOrder = 0;
+    private static int sortingOrderOffset = 10;
 
-    public int steps;
-
-    bool isMoving;
-
-    void Update()
+    void Awake()
     {
-        if(Input.GetKeyDown(KeyCode.Space) && !isMoving)
-        {
-            steps = Random.Range(1, 7);
-            Debug.Log("Dice Rolled: " + steps);
-
-            if(routePosition + steps < currentRoute.childNodeList.Count)
-            {
-                StartCoroutine(Move());
-            }
-            else
-            {
-                Debug.Log("Rolled number is too high");
-            }
-        }
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    IEnumerator Move()
+    public bool CanMove(int steps)
     {
-        if(isMoving)
+        return routePosition + steps < currentRoute.childNodeList.Count;
+    }
+
+    public IEnumerator Move(int steps)
+    {
+        if (IsMoving)
         {
             yield break;
         }
-        isMoving = true;
+        IsMoving = true;
 
-        while(steps > 0)
+        // Bring this stone to the front
+        spriteRenderer.sortingOrder = baseSortingOrder + sortingOrderOffset;
+
+        while (steps > 0)
         {
             Vector3 nextPos = currentRoute.childNodeList[routePosition + 1].position;
-            while(MoveToNextNode(nextPos)) {yield return null;}
+            while (MoveToNextNode(nextPos)) { yield return null; }
 
             yield return new WaitForSeconds(0.1f);
             steps--;
             routePosition++;
         }
 
-        isMoving = false;
+        // Reset sorting order after movement
+        spriteRenderer.sortingOrder = baseSortingOrder;
+
+        IsMoving = false;
     }
 
-    bool MoveToNextNode(Vector3 goal)
+    private bool MoveToNextNode(Vector3 goal)
     {
         return goal != (transform.position = Vector3.MoveTowards(transform.position, goal, 2f * Time.deltaTime));
     }

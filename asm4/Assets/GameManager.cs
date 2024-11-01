@@ -4,16 +4,22 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    public List<Stone> stones;
-    private int currentStoneIndex = 0;
-    
+    public List<Stone> stones;  // List of stone objects
+    public DiceRoller diceRoller;  // Reference to the dice roller
+    private int currentStoneIndex = 0;  // Index of the current stone
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (diceRoller.IsRolling())
         {
-            if (!stones[currentStoneIndex].IsMoving)
+            Debug.Log("Dice Rolling");
+        }
+        else
+        {
+            int steps = diceRoller.GetSteps();
+            diceRoller.Reset();
+            if (steps > 0 && !stones[currentStoneIndex].IsMoving)
             {
-                int steps = Random.Range(1, 7);
                 Debug.Log("Dice Rolled: " + steps);
 
                 if (stones[currentStoneIndex].CanMove(steps))
@@ -28,6 +34,13 @@ public class GameManager : MonoBehaviour
                 // Move to the next stone
                 currentStoneIndex = (currentStoneIndex + 1) % stones.Count;
             }
+        }
+
+        // Optionally, allow rolling the dice with a space key
+        if (Input.GetKeyDown(KeyCode.Space) && !diceRoller.IsRolling())
+        {
+            // Trigger dice roll
+            StartCoroutine(diceRoller.RollTheDice());
         }
     }
 }

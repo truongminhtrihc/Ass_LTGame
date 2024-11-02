@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public List<Stone> stones;  // List of stone objects
     public DiceRoller diceRoller;  // Reference to the dice roller
-    private int currentStoneIndex = 0;  // Index of the current stone
+    private int currentStoneIndex = 0;  // Index of the current stone | playerIdx
 
     void Update()
     {
@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("Rolled number is too high");
                 }
 
-                // Move to the next stone
+                // Move to the next stone | next player
                 currentStoneIndex = (currentStoneIndex + 1) % stones.Count;
             }
         }

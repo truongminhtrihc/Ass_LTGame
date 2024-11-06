@@ -27,7 +27,7 @@ public class DiceRoller : MonoBehaviour
     public IEnumerator RollTheDice()
     {
         int randomDiceSide = 0;
-        for (int i = 0; i <= 100; i++)
+        for (int i = 0; i <= 20; i++)
         {
             randomDiceSide = Random.Range(0, 6);
             rend.sprite = diceSides[randomDiceSide];

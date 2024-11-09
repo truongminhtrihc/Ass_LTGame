@@ -3,15 +3,18 @@ using System.Collections.Generic;
 
 public class Route : MonoBehaviour
 {
-    Transform[] childObjects;
-    public List<Transform> childNodeList = new List<Transform>();
+    [SerializeField]
+    private List<Transform> childNodeList = new List<Transform>();
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
+        // Set the color for the gizmos
+        Gizmos.color = Color.red;
 
+        // Fill the node list with child transforms
         FillNodes();
 
+        // Draw lines between the nodes
         for (int i = 0; i < childNodeList.Count; i++)
         {
             Vector3 currentPos = childNodeList[i].position;
@@ -23,17 +26,20 @@ public class Route : MonoBehaviour
         }
     }
 
-    void FillNodes()
+    private void FillNodes()
     {
+        // Clear the existing list to avoid duplicates
         childNodeList.Clear();
-        childObjects = GetComponentsInChildren<Transform>();
-        
-        foreach (Transform child in childObjects)
+
+        // Get all child transforms
+        foreach (Transform child in transform)
         {
-            if (child != this.transform)
-            {
-                childNodeList.Add(child);
-            }
+            // Add only the direct children of this transform
+            childNodeList.Add(child);
         }
+    }
+    public List<Transform> GetPathNodes()
+    {
+        return childNodeList;
     }
 }

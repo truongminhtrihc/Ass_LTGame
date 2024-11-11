@@ -24,13 +24,15 @@ public class GameManager : MonoBehaviour
             Debug.LogError("PlayerPrefab could not be found in the Resources folder!");
             return;
         }
-
+        List<Transform> pathNodes = route.GetPathNodes();
+        Vector3 vt = pathNodes[0].position;
+        vt.z = -1;
         // Initialize the players by instantiating the PlayerPrefab
         players = new List<Player> {
-            InstantiatePlayer("toan", new Vector3(0, 0, -1), "Sprites/player1"),
-            InstantiatePlayer("hau", new Vector3(0, 0, -1), "Sprites/player2"),
-            InstantiatePlayer("tri", new Vector3(0, 0, -1), "Sprites/player3"),
-            InstantiatePlayer("khanh_anh", new Vector3(0, 0, -1), "Sprites/player4")
+            InstantiatePlayer("toan", vt, "Sprites/player1"),
+            InstantiatePlayer("hau", vt, "Sprites/player2"),
+            InstantiatePlayer("tri", vt, "Sprites/player3"),
+            InstantiatePlayer("khanh_anh", vt, "Sprites/player4")
         };
 
         
@@ -89,6 +91,8 @@ public class GameManager : MonoBehaviour
     }
     private Player InstantiatePlayer(string playerName,Vector3 vector, string spritePath)
     {
+        Debug.Log("Instantiating player: " + playerName);
+        Debug.Log("Sprite path: " + spritePath);
         GameObject playerObject = Instantiate(playerPrefab, vector, Quaternion.identity);
         Player player = playerObject.GetComponent<Player>();
         player.playerName = playerName;

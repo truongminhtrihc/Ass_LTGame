@@ -1123,6 +1123,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
+--- !u!1 &623163551 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8953605601824432235, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
+  m_PrefabInstance: {fileID: 263100918175301968}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &669667371
 GameObject:
   m_ObjectHideFlags: 0
@@ -2297,12 +2302,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1300527352}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78ba0b92f0565614791a816be14613b2, type: 3}
+  m_Script: {fileID: 11500000, guid: a0e7ce488c4ea6948b5b53f565c174b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   players: []
-  diceRoller: {fileID: 1543728583}
-  route: {fileID: 1951074911}
+  diceRoller: {fileID: 1543728587}
+  route: {fileID: 1951074913}
 --- !u!1 &1329098360
 GameObject:
   m_ObjectHideFlags: 0
@@ -2477,22 +2482,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1951074912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1543728583 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4893671701091217173, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
-  m_PrefabInstance: {fileID: 263100918175301968}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ae239b66220624aba5b3f0ea3eafbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1543728585 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9036068451784912668, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
   m_PrefabInstance: {fileID: 263100918175301968}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1543728587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623163551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9ece74a554108409543c0e3a0a8327, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diceSides:
+  - {fileID: 21300000, guid: 378bd2b739b91b248ba6225db34d3db8, type: 3}
+  - {fileID: 21300000, guid: 918a855f5c50a9746bcb1fe37570b461, type: 3}
+  - {fileID: 21300000, guid: 8886cb7a87701a240b7bd8948ddb6262, type: 3}
+  - {fileID: 21300000, guid: e91a21d6e98ddf541947fe2e1f2c760c, type: 3}
+  - {fileID: 21300000, guid: c9853f4c5d869aa40aff31e78229b214, type: 3}
+  - {fileID: 21300000, guid: 8fba360c510f8894da7e6b76ab0df8b6, type: 3}
 --- !u!1 &1568373559
 GameObject:
   m_ObjectHideFlags: 0
@@ -3111,7 +3124,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1951074912}
-  - component: {fileID: 1951074911}
+  - component: {fileID: 1951074913}
   m_Layer: 0
   m_Name: Route
   m_TagString: Untagged
@@ -3119,55 +3132,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1951074911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1951074910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fb57a685b6cee47a5b72c63bbddfa4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  childNodeList:
-  - {fileID: 488032519}
-  - {fileID: 669667373}
-  - {fileID: 702754413}
-  - {fileID: 868240481}
-  - {fileID: 1855622042}
-  - {fileID: 291765378}
-  - {fileID: 345101587}
-  - {fileID: 892147019}
-  - {fileID: 1568373561}
-  - {fileID: 467573873}
-  - {fileID: 718296520}
-  - {fileID: 1845411461}
-  - {fileID: 400172838}
-  - {fileID: 782492562}
-  - {fileID: 1926670327}
-  - {fileID: 1245060363}
-  - {fileID: 1099897331}
-  - {fileID: 1689715678}
-  - {fileID: 264692691}
-  - {fileID: 58787449}
-  - {fileID: 557878194}
-  - {fileID: 2135067408}
-  - {fileID: 1329098362}
-  - {fileID: 418857607}
-  - {fileID: 2105834247}
-  - {fileID: 1220480681}
-  - {fileID: 1134724934}
-  - {fileID: 1955733650}
-  - {fileID: 2002275017}
-  - {fileID: 2142148354}
-  - {fileID: 812707562}
-  - {fileID: 719664515}
-  - {fileID: 1520065696}
-  - {fileID: 1659223706}
-  - {fileID: 1032118646}
-  - {fileID: 1738728867}
 --- !u!4 &1951074912
 Transform:
   m_ObjectHideFlags: 0
@@ -3219,6 +3183,236 @@ Transform:
   - {fileID: 1738728867}
   m_Father: {fileID: 1300527353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1951074913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951074910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e8e69bf14fcd3547bb268a6ad6e2c12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  childNodeList:
+  - {fileID: 488032519}
+  - {fileID: 669667373}
+  - {fileID: 702754413}
+  - {fileID: 868240481}
+  - {fileID: 1855622042}
+  - {fileID: 291765378}
+  - {fileID: 345101587}
+  - {fileID: 892147019}
+  - {fileID: 1568373561}
+  - {fileID: 467573873}
+  - {fileID: 718296520}
+  - {fileID: 1845411461}
+  - {fileID: 400172838}
+  - {fileID: 782492562}
+  - {fileID: 1926670327}
+  - {fileID: 1245060363}
+  - {fileID: 1099897331}
+  - {fileID: 1689715678}
+  - {fileID: 264692691}
+  - {fileID: 58787449}
+  - {fileID: 557878194}
+  - {fileID: 2135067408}
+  - {fileID: 1329098362}
+  - {fileID: 418857607}
+  - {fileID: 2105834247}
+  - {fileID: 1220480681}
+  - {fileID: 1134724934}
+  - {fileID: 1955733650}
+  - {fileID: 2002275017}
+  - {fileID: 2142148354}
+  - {fileID: 812707562}
+  - {fileID: 719664515}
+  - {fileID: 1520065696}
+  - {fileID: 1659223706}
+  - {fileID: 1032118646}
+  - {fileID: 1738728867}
+  nodeInfoList:
+  - name: GO
+    type: start
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE1
+    type: property
+    price: 60
+    group: 1
+    owner: {fileID: 0}
+  - name: HOUSE2
+    type: property
+    price: 60
+    group: 1
+    owner: {fileID: 0}
+  - name: TAX1
+    type: tax
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: BUS1
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE3
+    type: property
+    price: 100
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE4
+    type: property
+    price: 100
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE5
+    type: property
+    price: 120
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE6
+    type: property
+    price: 140
+    group: 3
+    owner: {fileID: 0}
+  - name: JAIL
+    type: jail
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: UTIL1
+    type: util
+    price: 150
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE7
+    type: property
+    price: 140
+    group: 3
+    owner: {fileID: 0}
+  - name: HOUSE8
+    type: property
+    price: 160
+    group: 3
+    owner: {fileID: 0}
+  - name: BUS2
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE9
+    type: property
+    price: 180
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE10
+    type: property
+    price: 180
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE11
+    type: property
+    price: 200
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE12
+    type: property
+    price: 220
+    group: 5
+    owner: {fileID: 0}
+  - name: PARKING
+    type: free
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE13
+    type: property
+    price: 220
+    group: 5
+    owner: {fileID: 0}
+  - name: HOUSE14
+    type: property
+    price: 240
+    group: 5
+    owner: {fileID: 0}
+  - name: BUS3
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE15
+    type: property
+    price: 260
+    group: 6
+    owner: {fileID: 0}
+  - name: HOUSE16
+    type: property
+    price: 260
+    group: 6
+    owner: {fileID: 0}
+  - name: UTIL2
+    type: util
+    price: 150
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE17
+    type: property
+    price: 280
+    group: 6
+    owner: {fileID: 0}
+  - name: HOUSE18
+    type: property
+    price: 300
+    group: 7
+    owner: {fileID: 0}
+  - name: GOJAIL
+    type: jail
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE19
+    type: property
+    price: 300
+    group: 7
+    owner: {fileID: 0}
+  - name: HOUSE20
+    type: property
+    price: 320
+    group: 7
+    owner: {fileID: 0}
+  - name: BUS4
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE21
+    type: property
+    price: 350
+    group: 8
+    owner: {fileID: 0}
+  - name: TAX2
+    type: tax
+    price: 75
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE22
+    type: property
+    price: 400
+    group: 8
+    owner: {fileID: 0}
+  - name: TREASURE
+    type: treasure
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: LIVE PRESERVER
+    type: live
+    price: 0
+    group: 0
+    owner: {fileID: 0}
 --- !u!1 &1955733648
 GameObject:
   m_ObjectHideFlags: 0
@@ -3706,10 +3900,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4893671701091217173, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8953605601824432235, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1543728587}
   m_SourcePrefab: {fileID: 100100000, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

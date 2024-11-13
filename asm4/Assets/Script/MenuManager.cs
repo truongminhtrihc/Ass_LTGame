@@ -1,22 +1,30 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class MenuManager : MonoBehaviour
 {   
 
     public GameObject mainMenuCanvas;  // Reference to the Main Menu Canvas
     public GameObject optionsMenuCanvas;  // Reference to the Options Menu Canvas
-    public GameObject gameScreenCanvas;  // Reference to the Game Screen Canvas
     public GameObject title;
+    public GameObject roomScreenCanvas;
     public GameObject background;
     void Start()
     {
+        if (SceneManager.GetSceneByName("GameScene").isLoaded)
+        {
+            SceneManager.UnloadSceneAsync("GameScene");
+        }
+        if (SceneManager.GetSceneByName("RoomScene").isLoaded)
+        {
+            SceneManager.UnloadSceneAsync("RoomScene");
+        }
         // Ensure the main menu is shown at the start
         mainMenuCanvas = GameObject.Find("MainMenu");
         optionsMenuCanvas = GameObject.Find("OptionMenu");
-        gameScreenCanvas = GameObject.Find("GameManager");
         title = GameObject.Find("Title");
         background = GameObject.Find("Backgound");
+        
         ShowMainMenu();
         AssignButtonEvents();
     }
@@ -43,14 +51,12 @@ public class MenuManager : MonoBehaviour
     {
         mainMenuCanvas.SetActive(true);
         optionsMenuCanvas.SetActive(false);
-        gameScreenCanvas.SetActive(false);
     }
 
     public void ShowOptionsMenu()
     {
         mainMenuCanvas.SetActive(false);
         optionsMenuCanvas.SetActive(true);
-        gameScreenCanvas.SetActive(false);
     }
 
     public void OnPlayButtonClicked()
@@ -58,9 +64,12 @@ public class MenuManager : MonoBehaviour
         // Load the game scene, replace "GameScene" with your actual game scene name
         mainMenuCanvas.SetActive(false);
         optionsMenuCanvas.SetActive(false);
-        gameScreenCanvas.SetActive(true);
+        
         title.SetActive(false);
-        background.SetActive(false);
+        background.SetActive(true);
+
+        
+        SceneManager.LoadScene("RoomScene", LoadSceneMode.Additive);
     }
 
     public void OnOptionsButtonClicked()

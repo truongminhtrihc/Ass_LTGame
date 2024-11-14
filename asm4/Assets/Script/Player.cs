@@ -1,10 +1,12 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 public class Player : MonoBehaviour
 {
     public string playerName;
     public int currentPosition;
     public int money;
+    public List<Property> propertyList;
     public Player(string name)
     {
         playerName = name;

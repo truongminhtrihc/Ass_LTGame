@@ -2188,7 +2188,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 281.11197
+  orthographic size: 261.99377
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2213,7 +2213,7 @@ Transform:
   m_GameObject: {fileID: 1301586609}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 557, y: 286, z: -19.518143}
+  m_LocalPosition: {x: 2316, y: 266, z: -19.518143}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -3084,6 +3084,187 @@ MonoBehaviour:
   - {fileID: 1659223706}
   - {fileID: 1032118646}
   - {fileID: 1738728867}
+  nodeInfoList:
+  - name: GO
+    type: start
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE1
+    type: property
+    price: 60
+    group: 1
+    owner: {fileID: 0}
+  - name: HOUSE2
+    type: property
+    price: 60
+    group: 1
+    owner: {fileID: 0}
+  - name: TAX1
+    type: tax
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: BUS1
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE3
+    type: property
+    price: 100
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE4
+    type: property
+    price: 100
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE5
+    type: property
+    price: 120
+    group: 2
+    owner: {fileID: 0}
+  - name: HOUSE6
+    type: property
+    price: 140
+    group: 3
+    owner: {fileID: 0}
+  - name: JAIL
+    type: jail
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: UTIL1
+    type: util
+    price: 150
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE7
+    type: property
+    price: 140
+    group: 3
+    owner: {fileID: 0}
+  - name: HOUSE8
+    type: property
+    price: 160
+    group: 3
+    owner: {fileID: 0}
+  - name: BUS2
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE9
+    type: property
+    price: 180
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE10
+    type: property
+    price: 180
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE11
+    type: property
+    price: 200
+    group: 4
+    owner: {fileID: 0}
+  - name: HOUSE12
+    type: property
+    price: 220
+    group: 5
+    owner: {fileID: 0}
+  - name: PARKING
+    type: free
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE13
+    type: property
+    price: 220
+    group: 5
+    owner: {fileID: 0}
+  - name: HOUSE14
+    type: property
+    price: 240
+    group: 5
+    owner: {fileID: 0}
+  - name: BUS3
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE15
+    type: property
+    price: 260
+    group: 6
+    owner: {fileID: 0}
+  - name: HOUSE16
+    type: property
+    price: 260
+    group: 6
+    owner: {fileID: 0}
+  - name: UTIL2
+    type: util
+    price: 150
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE17
+    type: property
+    price: 280
+    group: 6
+    owner: {fileID: 0}
+  - name: HOUSE18
+    type: property
+    price: 300
+    group: 7
+    owner: {fileID: 0}
+  - name: GOJAIL
+    type: jail
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE19
+    type: property
+    price: 300
+    group: 7
+    owner: {fileID: 0}
+  - name: HOUSE20
+    type: property
+    price: 320
+    group: 7
+    owner: {fileID: 0}
+  - name: BUS4
+    type: transportation
+    price: 200
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE21
+    type: property
+    price: 350
+    group: 8
+    owner: {fileID: 0}
+  - name: TAX2
+    type: tax
+    price: 75
+    group: 0
+    owner: {fileID: 0}
+  - name: HOUSE22
+    type: property
+    price: 400
+    group: 8
+    owner: {fileID: 0}
+  - name: TREASURE
+    type: treasure
+    price: 0
+    group: 0
+    owner: {fileID: 0}
+  - name: LIVE PRESERVER
+    type: live
+    price: 0
+    group: 0
+    owner: {fileID: 0}
 --- !u!4 &1951074912
 Transform:
   m_ObjectHideFlags: 0
@@ -3093,7 +3274,7 @@ Transform:
   m_GameObject: {fileID: 1951074910}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -435.38, y: -104.21, z: 0}
+  m_LocalPosition: {x: 3029.2583, y: -122.20996, z: 0}
   m_LocalScale: {x: 34.62736, y: 69.40218, z: 3.482}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3592,11 +3773,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9036068451784912668, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -252
+      value: 3212.6382
       objectReference: {fileID: 0}
     - target: {fileID: 9036068451784912668, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 141
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 9036068451784912668, guid: f05f3f0cde08e454e991858d9e12ec16, type: 3}
       propertyPath: m_LocalPosition.z

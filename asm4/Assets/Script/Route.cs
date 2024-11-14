@@ -95,6 +95,10 @@ public class Route : MonoBehaviour
     {
         return nodeInfoList[nodeIndex].owner.playerName;
     }
+    public Player GetOwner(int nodeIndex)
+    {
+        return nodeInfoList[nodeIndex].owner;
+    }
     public void BuyNode(int nodeIndex, Player player)
     {
         NodeInfo nodeInfo = nodeInfoList[nodeIndex];

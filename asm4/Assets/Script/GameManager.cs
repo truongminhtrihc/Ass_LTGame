@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     private int currentPlayerIndex;
     private GameObject playerPrefab;
     private bool isPlayerMoving = false;
+    private bool isWaitingForUserDecision = false;
     private int doubleCount = 0;
 
     void Start()
@@ -33,10 +34,10 @@ public class GameManager : MonoBehaviour
         vt.z = -1;
         // Initialize the players by instantiating the PlayerPrefab
         players = new List<Player> {
-            InstantiatePlayer("toan", vt, "Sprites/player1"),
-            InstantiatePlayer("hau", vt, "Sprites/player2"),
-            InstantiatePlayer("tri", vt, "Sprites/player3"),
-            InstantiatePlayer("khanh_anh", vt, "Sprites/player4")
+            InstantiatePlayer("toan", vt, "Sprites/Player_1"),
+            InstantiatePlayer("hau", vt, "Sprites/Player_2"),
+            InstantiatePlayer("tri", vt, "Sprites/Player_3"),
+            InstantiatePlayer("khanh_anh", vt, "Sprites/Player_4")
         };
 
         
@@ -47,7 +48,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // Handle player input for rolling the dice
-        if (!isPlayerMoving && Input.GetMouseButtonDown(0))
+        if (!isPlayerMoving && !isWaitingForUserDecision && Input.GetMouseButtonDown(0))
         {
             StartCoroutine(HandleDiceRoll());
         }
@@ -135,6 +136,7 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator GetUserDecision(string message, System.Action<bool> callback)
     {
+        isWaitingForUserDecision = true;
         // Show a pop-up to let the user decide
         bool decisionMade = false;
         bool userDecision = false;
@@ -189,6 +191,7 @@ public class GameManager : MonoBehaviour
         // Destroy the decision panel
         Destroy(decisionPanel);
 
+        isWaitingForUserDecision = false; // Allow other actions after the user has made a decision
         callback(userDecision);
     } 
     
@@ -241,15 +244,28 @@ public class GameManager : MonoBehaviour
         player.playerName = playerName;
         player.money = 1500;
         // Load and assign the sprite
-        Sprite playerSprite = Resources.Load<Sprite>(spritePath);
-        if (playerSprite != null)
+        Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
+        player.playerIcons = sprites;
+
+        if (sprites != null)
         {
-            playerObject.GetComponent<SpriteRenderer>().sprite = playerSprite;
+            playerObject.GetComponent<SpriteRenderer>().sprite = sprites[0];
         }
         else
         {
             Debug.LogError("Sprite could not be found at path: " + spritePath);
         }
+
+        // Ensure the GameObject is active
+        playerObject.SetActive(true);
+
+        // Ensure the SpriteRenderer is on the correct sorting layer and order
+        SpriteRenderer spriteRenderer = playerObject.GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingLayerName = "Default"; // Change to your sorting layer name
+        spriteRenderer.sortingOrder = 0; // Change to your desired sorting order
+
+        // Scale the player object up to 50 times its original size
+        playerObject.transform.localScale = new Vector3(60, 60, 0);
 
         return player;
     }
@@ -317,7 +333,7 @@ public class GameManager : MonoBehaviour
                 Property propertyToSell = player.propertyList[0];
                 player.propertyList.RemoveAt(0);
                 player.money += propertyToSell.price;  // Sell the property for half the price
-                Debug.Log(player.playerName + " sold " + propertyToSell.propertyName + " for " + propertyToSell.price);
+                Debug.Log(player.playerName + " sold " + propertyToSell.name + " for " + propertyToSell.price);
             }
             else
             {
@@ -341,7 +357,7 @@ public class GameManager : MonoBehaviour
                 Property propertyToSell = player.propertyList[0];
                 player.propertyList.RemoveAt(0);
                 player.money += propertyToSell.price;  // Sell the property for half the price
-                Debug.Log(player.playerName + " sold " + propertyToSell.propertyName + " for " + propertyToSell.price);
+                Debug.Log(player.playerName + " sold " + propertyToSell.name + " for " + propertyToSell.price);
             }
             else
             {

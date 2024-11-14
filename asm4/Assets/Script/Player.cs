@@ -9,11 +9,13 @@ public class Player : MonoBehaviour
     public List<Property> propertyList;
     public bool isInJail = false;
     public int jailTurns = 0;
+    public Sprite[] playerIcons;
     public Player(string name)
     {
         playerName = name;
         currentPosition = 0; // Starting position on the board
         money = 1500; // Starting money
+        propertyList = new List<Property>();
     }
     
     public int GetValueAllProperties()

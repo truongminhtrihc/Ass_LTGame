@@ -105,9 +105,10 @@ public class Route : MonoBehaviour
         if (nodeInfo.owner == null)
         {
             nodeInfo.owner = player;
-            player.propertyList.Add(new Property(nodeInfo.name, nodeInfo.price, nodeInfo.group));
+            Property newProperty = new Property(nodeInfo.name, nodeInfo.price, nodeInfo.group);
+            player.propertyList.Add(newProperty);
             player.money -= nodeInfo.price;
-            Debug.Log(player.playerName + " bought " + nodeInfo.name + " for " + nodeInfo.price);
+            Debug.Log(player.playerName + " bought " + newProperty.name + " for " + newProperty.price);
             Debug.Log(player.playerName + " now has " + player.money + " money");
         }
         else

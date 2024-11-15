@@ -110,10 +110,73 @@ public class Route : MonoBehaviour
             player.money -= nodeInfo.price;
             Debug.Log(player.playerName + " bought " + newProperty.name + " for " + newProperty.price);
             Debug.Log(player.playerName + " now has " + player.money + " money");
+
+            if (newProperty.group != 0)
+            {
+                // Check if the player has 3 properties in the same group
+                int propertiesInGroup = CountPropertiesInGroup(player, newProperty.group);
+                if (propertiesInGroup == 3 || (propertiesInGroup == 2 && (newProperty.group == 1 || newProperty.group == 8)))
+                {
+                    player.monopolyGroupCount += 1;
+                    // Increase the price of properties in the same group by 2x
+                    IncreasePropertyPricesInGroup(newProperty.group);
+                    Debug.Log(player.playerName + " now has 3 properties in the " + newProperty.group + " group. Prices increased by 2x.");
+                }
+            }
+            
         }
-        else
+    }
+    public void SellNode(int nodeIndex, Player player)
+    {
+        NodeInfo nodeInfo = nodeInfoList[nodeIndex];
+        nodeInfo.owner = null;
+        int group = nodeInfo.group;
+        if (group != 0)
         {
-            Debug.Log(nodeInfo.name + " is already owned by " + nodeInfo.owner.playerName);
+            // Check if the player has 3 properties in the same group
+            int propertiesInGroup = CountPropertiesInGroup(player, group);
+            if (propertiesInGroup == 3 || (propertiesInGroup == 2 && (group == 1 || group == 8)))
+            {
+                player.monopolyGroupCount -= 1;
+                // Increase the price of properties in the same group by 2x
+                DecreasePropertyPricesInGroup(group);
+                Debug.Log(player.playerName + " sold a property in the " + group + " group. Prices decreased by half.");
+            }
+        }
+    }
+    // Method to count properties in the same group
+    private int CountPropertiesInGroup(Player player, int group)
+    {
+        int count = 0;
+        foreach (Property property in player.propertyList)
+        {
+            if (property.group == group)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    // Method to increase the price of properties in the same group by 2x
+    private void IncreasePropertyPricesInGroup(int group)
+    {
+        foreach (NodeInfo nodeInfo in nodeInfoList)
+        {
+            if (nodeInfo.group == group)
+            {
+                nodeInfo.price *= 2;
+            }
+        }
+    }
+    // Method to decrease the price of properties in the same group by half
+    private void DecreasePropertyPricesInGroup(int group)
+    {
+        foreach (NodeInfo nodeInfo in nodeInfoList)
+        {
+            if (nodeInfo.group == group)
+            {
+                nodeInfo.price /= 2;
+            }
         }
     }
 }

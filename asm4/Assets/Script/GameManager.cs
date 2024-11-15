@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class GameManager : MonoBehaviour
     private bool isPlayerMoving = false;
     private bool isWaitingForUserDecision = false;
     private int doubleCount = 0;
+    private bool isGameStopped = false;
+    private string[] treasureCards = new string[] { "jail", "live", "free_jail", "money"}; 
 
     void Start()
     {
@@ -34,10 +37,10 @@ public class GameManager : MonoBehaviour
         vt.z = -1;
         // Initialize the players by instantiating the PlayerPrefab
         players = new List<Player> {
-            InstantiatePlayer("toan", vt, "Sprites/Player_1"),
-            InstantiatePlayer("hau", vt, "Sprites/Player_2"),
-            InstantiatePlayer("tri", vt, "Sprites/Player_3"),
-            InstantiatePlayer("khanh_anh", vt, "Sprites/Player_4")
+            InstantiatePlayer("toan", vt, "Sprites/Player_1", 0),
+            InstantiatePlayer("hau", vt, "Sprites/Player_2", 1),
+            InstantiatePlayer("tri", vt, "Sprites/Player_3", 2),
+            InstantiatePlayer("khanh_anh", vt, "Sprites/Player_4", 3)
         };
 
         
@@ -52,6 +55,18 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(HandleDiceRoll());
         }
+
+        // Debug: Press 'B' to simulate a player going bankrupt
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            SimulateBankrupt(players[currentPlayerIndex]);
+        }
+    }
+
+    private void SimulateBankrupt(Player player)
+    {
+        Debug.Log("Simulating bankruptcy for player: " + player.playerName);
+        Bankrupt(player);
     }
 
     void StartTurn()
@@ -209,6 +224,8 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < steps; i++)
         {
+            if (isGameStopped) yield break; // Exit coroutine if the game is stopped
+
             player.currentPosition = (player.currentPosition + 1) % pathNodes.Count;  // Move along the path
             Vector3 newPosition = pathNodes[player.currentPosition].position;
             newPosition.z = player.transform.position.z;  // Maintain the player's original Z position
@@ -235,14 +252,17 @@ public class GameManager : MonoBehaviour
         doubleCount = 0;
         StartTurn();
     }
-    private Player InstantiatePlayer(string playerName,Vector3 vector, string spritePath)
+    private Player InstantiatePlayer(string playerName,Vector3 vector, string spritePath, int ID)
     {
         Debug.Log("Instantiating player: " + playerName);
         Debug.Log("Sprite path: " + spritePath);
         GameObject playerObject = Instantiate(playerPrefab, vector, Quaternion.identity);
         Player player = playerObject.GetComponent<Player>();
+        player.playerID = ID;
         player.playerName = playerName;
         player.money = 1500;
+        player.gameObject = playerObject;
+
         // Load and assign the sprite
         Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
         player.playerIcons = sprites;
@@ -288,6 +308,11 @@ public class GameManager : MonoBehaviour
                             {
                                 route.BuyNode(player.currentPosition, player);
                                 Debug.Log(player.playerName + " has bought " + route.GetNodeName(player.currentPosition) + " for " + route.GetNodePrice(player.currentPosition));
+
+                                if (player.monopolyGroupCount == 3)
+                                {
+                                    DeclareWinner(player);
+                                }
                             }
                         }));
                     }
@@ -312,8 +337,36 @@ public class GameManager : MonoBehaviour
             case "util":
                 break;
             case "live":
+                player.livePreserver += 1;
                 break;
             case "treasure":
+                // Implement random choice on treasureCards effect
+                int randomIndex = UnityEngine.Random.Range(0, treasureCards.Length);
+                string selectedCard = treasureCards[randomIndex];
+                Debug.Log(player.playerName + " drew a treasure card: " + selectedCard);
+
+                switch (selectedCard)
+                {
+                    case "jail":
+                        SendPlayerToJail(player);
+                        break;
+                    case "live":
+                        // Implement live effect (e.g., gain money, move forward, etc.)
+                        player.livePreserver += 1;
+                        Debug.Log(player.playerName + " gained a live preserver.");
+                        break;
+                    case "free_jail":
+                        // Implement free jail effect (e.g., get out of jail free card)
+                        player.hasFreeJailCard = true;
+                        Debug.Log(player.playerName + " received a Get Out of Jail Free card.");
+                        break;
+                    case "money":
+                        // Implement money effect (e.g., gain a random amount of money)
+                        int moneyAmount = UnityEngine.Random.Range(100, 200); // Example effect: gain 100 to 200 money
+                        player.money += moneyAmount;
+                        Debug.Log(player.playerName + " gained " + moneyAmount + "$.");
+                        break;
+                }
                 break;
             case "go":
                 player.money += 200;
@@ -325,6 +378,11 @@ public class GameManager : MonoBehaviour
     }
     private void PayRent(Player player, Player owner, int rentAmount)
     {
+        if (player.livePreserver > 0){
+            player.livePreserver -= 1;
+            Debug.Log(player.playerName + " used a live preserver.");
+            return;
+        }
         while (player.money < rentAmount)
         {
             if (player.propertyList.Count > 0)
@@ -333,6 +391,7 @@ public class GameManager : MonoBehaviour
                 Property propertyToSell = player.propertyList[0];
                 player.propertyList.RemoveAt(0);
                 player.money += propertyToSell.price;  // Sell the property for half the price
+                route.SellNode(player.currentPosition, player);
                 Debug.Log(player.playerName + " sold " + propertyToSell.name + " for " + propertyToSell.price);
             }
             else
@@ -348,6 +407,11 @@ public class GameManager : MonoBehaviour
     }
     private void PayTax(Player player)
     {
+        if (player.livePreserver > 0){
+            player.livePreserver -= 1;
+            Debug.Log(player.playerName + " used a live preserver.");
+            return;
+        }
         int taxAmount = 200 + (int)Math.Ceiling(0.1 * (player.money + player.GetValueAllProperties()));
         while (player.money < taxAmount)
         {
@@ -356,7 +420,8 @@ public class GameManager : MonoBehaviour
                 // Sell the first property in the list
                 Property propertyToSell = player.propertyList[0];
                 player.propertyList.RemoveAt(0);
-                player.money += propertyToSell.price;  // Sell the property for half the price
+                player.money += propertyToSell.price;  // Sell the property
+                route.SellNode(player.currentPosition, player);
                 Debug.Log(player.playerName + " sold " + propertyToSell.name + " for " + propertyToSell.price);
             }
             else
@@ -369,14 +434,15 @@ public class GameManager : MonoBehaviour
         player.money -= taxAmount;
         Debug.Log(player.playerName + " paid " + taxAmount + "$ " + " in tax.");
     }
-    private void Bankrupt(Player player)
-    {
-        Debug.Log(player.playerName + " is bankrupt!");
-        players.Remove(player);
-    }
 
     private void SendPlayerToJail(Player player)
     {
+        if (player.hasFreeJailCard)
+        {
+            Debug.Log(player.playerName + " used a Get Out of Jail Free card.");
+            player.hasFreeJailCard = false;
+            return;
+        }
         player.currentPosition = 10;  // Send the player to jail
         player.isInJail = true;
         player.jailTurns = 3;
@@ -391,5 +457,74 @@ public class GameManager : MonoBehaviour
 
         isPlayerMoving = false;  // Allow other actions after the player has finished moving
         EndTurn();
+    }
+    private void Bankrupt(Player player)
+    {
+        Debug.Log(player.playerName + " is bankrupt!");
+        // Remove the player's GameObject from the board
+        Destroy(player.gameObject);
+
+        // Remove the player from the list of active players
+        players.Remove(player);
+
+        // Update currentPlayerIndex
+        currentPlayerIndex = currentPlayerIndex % players.Count;
+
+        // Check if only one player remains
+        if (players.Count == 1)
+        {
+            DeclareWinner(players[0]);
+        }
+    }
+
+    private void DeclareWinner(Player winner)
+    {
+        Debug.Log(winner.playerName + " is the winner!");
+        ShowWinnerUI(winner);
+        StopGame();
+    }
+
+    private void ShowWinnerUI(Player winner)
+    {
+        // Create a UI panel to display the winner
+        GameObject winnerPanel = new GameObject("WinnerPanel");
+        Canvas canvas = winnerPanel.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler canvasScaler = winnerPanel.AddComponent<CanvasScaler>();
+        canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        winnerPanel.AddComponent<GraphicRaycaster>();
+
+        // Set the position of the Canvas
+        RectTransform rectTransform = winnerPanel.GetComponent<RectTransform>();
+        rectTransform.anchoredPosition = new Vector2(0, 0);
+
+        // Create winner text
+        GameObject winnerTextObject = new GameObject("WinnerText");
+        winnerTextObject.transform.SetParent(winnerPanel.transform);
+        Text winnerText = winnerTextObject.AddComponent<Text>();
+        winnerText.text = winner.playerName + " is the winner!";
+        winnerText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        winnerText.alignment = TextAnchor.MiddleCenter;
+        winnerText.color = Color.black; // Set text color
+
+        // Set the RectTransform of the winner text to be centered
+        RectTransform winnerTextRect = winnerText.GetComponent<RectTransform>();
+        winnerTextRect.anchorMin = new Vector2(0.5f, 0.5f);
+        winnerTextRect.anchorMax = new Vector2(0.5f, 0.5f);
+        winnerTextRect.anchoredPosition = new Vector2(0, 50); // Set position of the text box
+        winnerTextRect.sizeDelta = new Vector2(300, 50); // Set size of the text box
+
+        // Create Back to Main Menu button
+        GameObject backButton = CreateButton("Back to Main Menu", new Vector2(0, -50), Color.red, () => { Debug.Log("clicked"); SceneManager.LoadScene("MainMenu"); });
+        backButton.transform.SetParent(winnerPanel.transform);
+    }
+
+    private void StopGame()
+    {
+        // Implement logic to stop the game, such as disabling player input and stopping coroutines
+        isPlayerMoving = false;
+        isWaitingForUserDecision = false;
+        isGameStopped = true;
+        StopAllCoroutines();
     }
 }

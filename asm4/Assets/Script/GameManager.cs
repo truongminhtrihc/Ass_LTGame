@@ -1,25 +1,218 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.IO;
+using System.Xml;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+// using SharpNeat.Phenomes;
+// using SharpNeat.Genomes.Neat;
+// using SharpNeat.Decoders.Neat;
+// using SharpNeat.Core;
+// using SharpNeat.Decoders;
+using System.Linq;
 
+[System.Serializable]
+public class PlayerUIPosition
+{
+    public Vector2 AnchorMin;
+    public Vector2 AnchorMax;
+    public Vector2 Pivot;
+    public Vector2 AnchoredPosition;
+}
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
     public List<Player> players;
     public DiceRoller diceRoller1;
     public DiceRoller diceRoller2;
     public Route route;  // Reference to the Route
+    public int currentTurn = 0;
     private int currentPlayerIndex;
     private GameObject playerPrefab;
     private bool isPlayerMoving = false;
     private bool isWaitingForUserDecision = false;
     private int doubleCount = 0;
     private bool isGameStopped = false;
-    private string[] treasureCards = new string[] { "jail", "live", "free_jail", "money"}; 
+    private string[] treasureCards = new string[] { "jail", "live", "free_jail", "money"};
+    
+    // UI 
+    public Canvas playerCanvasPrefab; // Assign a Canvas prefab in the Inspector
+    public Transform uiParent; // Assign a parent Transform for UI elements
 
+    // Define hard set positions for up to 4 players
+    // Define hard set positions and anchor settings for up to 4 players
+    private readonly PlayerUIPosition[] playerUIPositions = new PlayerUIPosition[]
+    {
+        new PlayerUIPosition
+        {
+            AnchorMin = new Vector2(0, 1),
+            AnchorMax = new Vector2(0, 1),
+            Pivot = new Vector2(0, 1),
+            AnchoredPosition = new Vector2(100f, -20f)
+        },
+        new PlayerUIPosition
+        {
+            AnchorMin = new Vector2(1, 1),
+            AnchorMax = new Vector2(1, 1),
+            Pivot = new Vector2(1, 1),
+            AnchoredPosition = new Vector2(-100f, -20f) // 10 units from top-right
+        },
+        new PlayerUIPosition
+        {
+            AnchorMin = new Vector2(0, 0),
+            AnchorMax = new Vector2(0, 0),
+            Pivot = new Vector2(0, 0),
+            AnchoredPosition = new Vector2(100f, 100f) // 10 units from bottom-left
+        },
+        new PlayerUIPosition
+        {
+            AnchorMin = new Vector2(1, 0),
+            AnchorMax = new Vector2(1, 0),
+            Pivot = new Vector2(1, 0),
+            AnchoredPosition = new Vector2(-100f, 100f) // 10 units from bottom-right
+        }
+    };
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject); // Ensure singleton instance
+        }
+    }
+
+    public int GetPlayerCount()
+    {
+        return players.Count;
+    }
+
+    public int GetCurrentTurn()
+    {
+        return currentTurn;
+    }
+    void CreatePlayerUI(Player player, int playerIndex)
+    {
+        if (playerCanvasPrefab == null)
+        {
+            Debug.LogError("Player Canvas Prefab is not assigned in the Inspector.");
+            return;
+        }
+
+        if (uiParent == null)
+        {
+            Debug.LogError("UI Parent is not assigned in the Inspector.");
+            return;
+        }
+
+        // Instantiate the Canvas prefab as a child of uiParent
+        Canvas playerCanvas = Instantiate(playerCanvasPrefab, uiParent);
+        playerCanvas.name = $"{player.playerName} UI";
+
+        // Assign the Player reference in PlayerUI script
+        PlayerUI playerUI = playerCanvas.GetComponent<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.player = player;
+            playerUI.UpdateUI();
+        }
+        else
+        {
+            Debug.LogError("PlayerUI script not found on Canvas prefab.");
+        }
+
+        // Set the UI Canvas position and anchoring
+        RectTransform canvasRect = playerCanvas.GetComponent<RectTransform>();
+        if (canvasRect != null)
+        {
+            SetPlayerUICanvas(canvasRect, playerIndex);
+        }
+        else
+        {
+            Debug.LogError("RectTransform component missing on PlayerCanvas prefab.");
+        }
+
+        // Set Panel position and size
+        Transform panelTransform = playerCanvas.transform.Find("PlayerInfoPanel");
+        if (panelTransform != null)
+        {
+            RectTransform panelRect = panelTransform.GetComponent<RectTransform>();
+            if (panelRect != null)
+            {
+                SetPlayerUIPanel(panelRect, playerIndex);
+            }
+            else
+            {
+                Debug.LogError("RectTransform component missing on PlayerInfoPanel.");
+            }
+        }
+        else
+        {
+            Debug.LogError("PlayerInfoPanel child not found in PlayerCanvas prefab.");
+        }
+    }
+
+    void SetPlayerUICanvas(RectTransform rectTransform, int playerIndex)
+    {
+        if (playerIndex >= playerUIPositions.Length)
+        {
+            Debug.LogError("Player index exceeds predefined positions.");
+            return;
+        }
+
+        PlayerUIPosition positionSetting = playerUIPositions[playerIndex];
+
+        // Set anchors
+        rectTransform.anchorMin = positionSetting.AnchorMin;
+        rectTransform.anchorMax = positionSetting.AnchorMax;
+
+        // Set pivot
+        rectTransform.pivot = positionSetting.Pivot;
+
+        // Set anchored position
+        rectTransform.anchoredPosition = positionSetting.AnchoredPosition;
+        // Adjust anchoredPosition based on screen size if needed
+        float offsetX = positionSetting.AnchoredPosition.x * (Screen.width / 1920f); // Assuming Reference Resolution is 1920
+        float offsetY = positionSetting.AnchoredPosition.y * (Screen.height / 1080f); // Assuming Reference Resolution is 1080
+
+        rectTransform.anchoredPosition = new Vector2(offsetX, offsetY);
+    }
+    void SetPlayerUIPanel(RectTransform rectTransform, int playerIndex)
+    {
+        if (playerIndex >= playerUIPositions.Length)
+        {
+            Debug.LogError("Player index exceeds predefined positions.");
+            return;
+        }
+
+        PlayerUIPosition positionSetting = playerUIPositions[playerIndex];
+
+        // Set anchors
+        rectTransform.anchorMin = positionSetting.AnchorMin;
+        rectTransform.anchorMax = positionSetting.AnchorMax;
+
+        // Set pivot
+        rectTransform.pivot = positionSetting.Pivot;
+
+        // Set anchored position
+        rectTransform.anchoredPosition = positionSetting.AnchoredPosition;
+    }
+
+    // Call this method whenever player data changes
+    public void RefreshAllPlayerUIs()
+    {
+        PlayerUI[] allPlayerUIs = FindObjectsOfType<PlayerUI>();
+        foreach (PlayerUI playerUI in allPlayerUIs)
+        {
+            playerUI.UpdateUI();
+        }
+    }
     void Start()
     {
         currentPlayerIndex = 0;
@@ -37,24 +230,57 @@ public class GameManager : MonoBehaviour
         vt.z = -1;
         // Initialize the players by instantiating the PlayerPrefab
         players = new List<Player> {
-            InstantiatePlayer("toan", vt, "Sprites/Player_1", 0),
-            InstantiatePlayer("hau", vt, "Sprites/Player_2", 1),
-            InstantiatePlayer("tri", vt, "Sprites/Player_3", 2),
-            InstantiatePlayer("khanh_anh", vt, "Sprites/Player_4", 3)
+            InstantiateBotPlayer("toan", vt, "Sprites/Player_1", 0),
+            InstantiateBotPlayer("hau", vt, "Sprites/Player_2", 1),
+            InstantiateBotPlayer("tri", vt, "Sprites/Player_3", 2),
+            InstantiateBotPlayer("khanh_anh", vt, "Sprites/Player_4", 3)
         };
 
-        
+        // Create UI for each player
+        for (int i = 0; i < players.Count; i++)
+        {
+            CreatePlayerUI(players[i], i);
+        }
         // Start the game
         StartTurn();
     }
 
     void Update()
     {
-        // Handle player input for rolling the dice
-        if (!isPlayerMoving && !isWaitingForUserDecision && Input.GetMouseButtonDown(0))
+        
+        if (players[currentPlayerIndex] is BotPlayer botPlayer)
         {
-            StartCoroutine(HandleDiceRoll());
+            if (!isPlayerMoving && !isWaitingForUserDecision)
+            {
+                // Generate the current game state
+                GameState currentState = GenerateCurrentGameState(botPlayer.playerID);
+                
+                // Make decision using MCTS
+                StartCoroutine(BotTakeTurn(botPlayer, currentState));
+            }
         }
+        else
+        {
+            // Handle player input for rolling the dice
+            if (!isPlayerMoving && !isWaitingForUserDecision && Input.GetMouseButtonDown(0))
+            {
+                // Player's turn
+                StartCoroutine(HandleDiceRoll());
+            }
+        }
+        // if (!isPlayerMoving && !isWaitingForUserDecision && Input.GetMouseButtonDown(0))
+        // {
+        //     if (players[currentPlayerIndex] is BotPlayer botPlayer)
+        //     {
+        //         // Bot do not need to mouse click
+        //         return;
+        //     }
+        //     else
+        //     {
+        //         // Player's turn
+        //         StartCoroutine(HandleDiceRoll());
+        //     }
+        // }
 
         // Debug: Press 'B' to simulate a player going bankrupt
         if (Input.GetKeyDown(KeyCode.B))
@@ -71,44 +297,182 @@ public class GameManager : MonoBehaviour
 
     void StartTurn()
     {
+        if (isGameStopped) return;
+
         Player currentPlayer = players[currentPlayerIndex];
         Debug.Log(currentPlayer.playerName + "'s turn");
+
+        // if (currentPlayer is BotPlayer botPlayer)
+        // {
+        //     // Generate the current game state
+        //     GameState currentState = GenerateCurrentGameState(currentPlayer.playerID);
+            
+        //     // Make decision using MCTS
+        //     StartCoroutine(BotTakeTurn(botPlayer, currentState));
+        // }
+        // else
+        // {
+        //     // For human players, prompt to roll the dice
+        //     Debug.Log("Press left mouse button to roll the dice.");
+        // }
     }
 
-    IEnumerator HandleDiceRoll()
+    private IEnumerator BotTakeTurn(BotPlayer botPlayer, GameState currentState)
     {
-        bool rolledDouble;
-        do
+        isPlayerMoving = true;
+        isWaitingForUserDecision = true;
+
+        Debug.Log($"{botPlayer.playerName} is rolling the dice...");
+
+        // Roll both dice
+        yield return StartCoroutine(RollDice());
+
+        int steps = diceRoller1.GetSteps() + diceRoller2.GetSteps();
+        bool rolledDouble = diceRoller1.GetSteps() == diceRoller2.GetSteps();
+
+        Debug.Log($"{botPlayer.playerName} rolled {diceRoller1.GetSteps()} and {diceRoller2.GetSteps()} {(rolledDouble ? "(Double!)" : "")}, total steps: {steps}");
+
+        // Move the bot player
+        yield return StartCoroutine(MovePlayer(botPlayer, steps));
+
+        // Generate updated game state after moving
+        GameState updatedState = GenerateCurrentGameState(botPlayer.playerID);
+
+        // Make a decision based on the updated game state
+        ActionType decision = botPlayer.MakeDecision(updatedState);
+
+        // Execute the decided action
+        ExecuteBotAction(botPlayer, decision);
+
+        // Handle doubles
+        if (rolledDouble)
         {
-            rolledDouble = false;
-
-            if (!diceRoller1.IsRolling() && !diceRoller2.IsRolling())
+            doubleCount++;
+            if (doubleCount >= 3)
             {
-                // Roll both dice
-                yield return StartCoroutine(diceRoller1.RollTheDice());
-                yield return StartCoroutine(diceRoller2.RollTheDice());
+                Debug.Log($"{botPlayer.playerName} rolled doubles three times and is sent to jail.");
+                SendPlayerToJail(botPlayer);
+                doubleCount = 0;
+            }
+            else
+            {
+                Debug.Log($"{botPlayer.playerName} rolled doubles and gets another turn.");
+                yield return new WaitForSeconds(0.5f);
+                // Bot get another turn
+                yield return StartCoroutine(BotTakeTurn(botPlayer, updatedState));
 
-                int steps1 = diceRoller1.GetSteps();
-                int steps2 = diceRoller2.GetSteps();
+                yield break;
+            }
+        }
+        else
+        {
+            doubleCount = 0;
+        }
 
-                if (steps1 == steps2)
+        isPlayerMoving = false;
+        isWaitingForUserDecision = false;
+
+        EndTurn(); // Advance to the next player's turn
+    }
+
+    private IEnumerator RollDice()
+    {
+        // Start rolling both dice
+        yield return StartCoroutine(diceRoller1.RollTheDice());
+        yield return StartCoroutine(diceRoller2.RollTheDice());
+    }
+    /// <summary>
+    /// Executes the action decided by the bot.
+    /// </summary>
+    private void ExecuteBotAction(BotPlayer botPlayer, ActionType action)
+    {
+        NodeInfo nodeInfo = route.properties.FirstOrDefault(p => p.ID == botPlayer.currentPosition);
+        if (nodeInfo == null)
+        {
+            Debug.LogError("Bot landed on an invalid property.");
+            return;
+        }
+
+        // Manually map NodeInfo to PropertyState
+        PropertyState currentProperty = new PropertyState
+        {
+            PropertyName = nodeInfo.name,
+            PropertyID = nodeInfo.ID,
+            IsOwned = nodeInfo.owner != null,
+            OwnerID = nodeInfo.owner != null ? nodeInfo.owner.playerID : -1,
+            Price = nodeInfo.price,
+            Group = nodeInfo.group
+        };
+
+        switch (action)
+        {
+            case ActionType.BuyProperty:
+                if (!currentProperty.IsOwned && botPlayer.money >= currentProperty.Price)
                 {
-                    doubleCount++;
-                    Debug.Log("Player rolled a double! They get to roll again.");
-                    rolledDouble = true;
+                    BuyProperty(botPlayer);
                 }
                 else
                 {
-                    doubleCount = 0;
+                    Debug.Log($"{botPlayer.playerName} decided not to buy {currentProperty.PropertyName}.");
                 }
+                break;
 
-                // Get the sum of both dice rolls
-                int steps = steps1 + steps2;
+            case ActionType.Pass:
+                Debug.Log($"{botPlayer.playerName} decided to pass on {currentProperty.PropertyName}.");
+                // Optionally, perform any 'Pass'-specific logic here
+                break;
 
-                // Move the player
-                yield return StartCoroutine(MovePlayer(players[currentPlayerIndex], steps));
+            default:
+                Debug.LogWarning($"Unhandled action type: {action}");
+                break;
+        }
+        // After executing the action, refresh the UI
+        RefreshAllPlayerUIs();
+    }
+    IEnumerator HandleDiceRoll()
+    {
+        isPlayerMoving = true;
+        isWaitingForUserDecision = true;
+
+        // Start rolling both dice
+        yield return StartCoroutine(RollDice());
+
+        int steps = diceRoller1.GetSteps() + diceRoller2.GetSteps();
+        bool rolledDouble = diceRoller1.GetSteps() == diceRoller2.GetSteps();
+
+        Debug.Log($"Player rolled {diceRoller1.GetSteps()} and {diceRoller2.GetSteps()} {(rolledDouble ? "(Double!)" : "")}, total steps: {steps}");
+
+        // Move the player
+        yield return StartCoroutine(MovePlayer(players[currentPlayerIndex], steps));
+
+        if (rolledDouble)
+        {
+            doubleCount++;
+            if (doubleCount >= 3)
+            {
+                Debug.Log($"{players[currentPlayerIndex].playerName} rolled doubles three times and is sent to jail.");
+                SendPlayerToJail(players[currentPlayerIndex]);
+                doubleCount = 0;
             }
-        } while (rolledDouble);
+            else
+            {
+                Debug.Log($"{players[currentPlayerIndex].playerName} rolled doubles and gets another turn.");
+                isPlayerMoving = false;
+                isWaitingForUserDecision = false;
+                StartTurn(); // Player gets another turn
+                yield break;
+            }
+        }
+        else
+        {
+            doubleCount = 0;
+        }
+
+        isPlayerMoving = false;
+        isWaitingForUserDecision = false;
+        RefreshAllPlayerUIs();
+
+        EndTurn(); // Advance to the next player's turn
     }
     private GameObject CreateButton(string buttonText, Vector2 position, Color buttonColor, System.Action onClickAction)
     {
@@ -233,26 +597,27 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f); // Wait a bit between moves for better visualization
         }
         // Handle the player landing on the node: buy property, pay rent, etc.
-        StartCoroutine(HandlePlayerLanding(player));
+        yield return StartCoroutine(HandlePlayerLanding(player));
 
-        isPlayerMoving = false;  // Allow other actions after the player has finished moving
+        // isPlayerMoving = false;  // Allow other actions after the player has finished moving
 
-        if (doubleCount > 0){
-            // Wait for the player to click the left mouse button before rolling again
-            Debug.Log("Click the left mouse button to roll again.");
-            yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
-            yield break;
-        }
-        EndTurn();
+        // if (doubleCount > 0){
+        //     // Wait for the player to click the left mouse button before rolling again
+        //     Debug.Log("Click the left mouse button to roll again.");
+        //     yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        //     yield break;
+        // }
+        // EndTurn();
     }
 
     void EndTurn()
     {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
         doubleCount = 0;
+        currentTurn++;
         StartTurn();
     }
-    private Player InstantiatePlayer(string playerName,Vector3 vector, string spritePath, int ID)
+    private Player InstantiatePlayer(string playerName, Vector3 vector, string spritePath, int ID)
     {
         Debug.Log("Instantiating player: " + playerName);
         Debug.Log("Sprite path: " + spritePath);
@@ -289,6 +654,126 @@ public class GameManager : MonoBehaviour
 
         return player;
     }
+    private BotPlayer InstantiateBotPlayer(string playerName, Vector3 position, string spritePath, int ID)
+    {
+        GameObject playerObject = Instantiate(playerPrefab, position, Quaternion.identity);
+        BotPlayer botPlayer = playerObject.AddComponent<BotPlayer>();
+        botPlayer.playerID = ID;
+        botPlayer.playerName = playerName;
+        botPlayer.money = 1500;
+        botPlayer.livePreserver = 0;
+        botPlayer.isInJail = false;
+        botPlayer.hasFreeJailCard = false;
+        botPlayer.jailTurns = 0;
+        botPlayer.currentPosition = 0;
+        botPlayer.monopolyGroupCount = 0;
+        botPlayer.propertyList = new List<Property>();
+
+        // Load and assign the sprite
+        Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
+        botPlayer.playerIcons = sprites;
+
+        if (sprites != null && sprites.Length > 0)
+        {
+            playerObject.GetComponent<SpriteRenderer>().sprite = sprites[0];
+        }
+        else
+        {
+            Debug.LogError("Sprite could not be found at path: " + spritePath);
+        }
+
+        // Ensure the GameObject is active
+        playerObject.SetActive(true);
+
+        // Ensure the SpriteRenderer is on the correct sorting layer and order
+        SpriteRenderer spriteRenderer = playerObject.GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingLayerName = "Default"; // Change to your sorting layer name
+        spriteRenderer.sortingOrder = 0; // Change to your desired sorting order
+
+        // Scale the player object up
+        playerObject.transform.localScale = new Vector3(60, 60, 1);
+
+        // Add to players list
+        // players.Add(botPlayer);
+
+        return botPlayer;
+    }
+    // private BotPlayer InstantiateBotPlayer(string playerName, Vector3 vector, string spritePath, int ID)
+    // {
+    //     Debug.Log("Instantiating bot player: " + playerName);
+    //     Debug.Log("Sprite path: " + spritePath);
+    //     GameObject playerObject = Instantiate(playerPrefab, vector, Quaternion.identity);
+    //     BotPlayer botPlayer = playerObject.AddComponent<BotPlayer>();
+    //     botPlayer.playerID = ID;
+    //     botPlayer.playerName = playerName;
+    //     botPlayer.money = 1500;
+    //     botPlayer.livePreserver = 0;
+    //     botPlayer.isInJail = false;
+    //     botPlayer.hasFreeJailCard = false;
+    //     botPlayer.jailTurns = 0;
+    //     botPlayer.currentPosition = 0;
+    //     botPlayer.monopolyGroupCount = 0;
+    //     botPlayer.propertyList = new List<Property>(); // Ensure propertyList is initialized
+
+    //     // Initialize the neural network for the bot player
+    //     IBlackBox neuralNetwork = CreateNeuralNetwork(); // Implement this method to create and initialize the neural network
+    //     botPlayer.Initialize(neuralNetwork);
+
+    //     // Load and assign the sprite
+    //     Sprite[] sprites = Resources.LoadAll<Sprite>(spritePath);
+    //     botPlayer.playerIcons = sprites;
+
+    //     if (sprites != null)
+    //     {
+    //         playerObject.GetComponent<SpriteRenderer>().sprite = sprites[0];
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("Sprite could not be found at path: " + spritePath);
+    //     }
+
+    //     // Ensure the GameObject is active
+    //     playerObject.SetActive(true);
+
+    //     // Ensure the SpriteRenderer is on the correct sorting layer and order
+    //     SpriteRenderer spriteRenderer = playerObject.GetComponent<SpriteRenderer>();
+    //     spriteRenderer.sortingLayerName = "Default"; // Change to your sorting layer name
+    //     spriteRenderer.sortingOrder = 0; // Change to your desired sorting order
+
+    //     // Scale the player object up to 50 times its original size
+    //     playerObject.transform.localScale = new Vector3(60, 60, 0);
+
+    //     return botPlayer;
+    // }
+
+    // private IBlackBox CreateNeuralNetwork()
+    // {
+    //     // Load the genome from a file
+    //     string genomeFilePath = "Assets/UnitySharpNEAT/SharpNeAT/Genomes/genome.xml";
+    //     NeatGenome genome = LoadGenome(genomeFilePath);
+
+    //     // Create a network activation scheme using the static factory method
+    //     var activationScheme = NetworkActivationScheme.CreateCyclicFixedTimestepsScheme(1);
+
+    //     // Create a genome decoder with the activation scheme
+    //     var genomeDecoder = new NeatGenomeDecoder(activationScheme);
+
+    //     // Decode the genome to create a neural network (IBlackBox)
+    //     IBlackBox neuralNetwork = genomeDecoder.Decode(genome);
+
+    //     return neuralNetwork;
+    // }
+
+    // private NeatGenome LoadGenome(string filePath)
+    // {
+    //     // Create and initialize the NeatGenomeFactory with appropriate input and output counts
+    //     var neatGenomeFactory = new NeatGenomeFactory(10, 2); // Adjust as needed
+
+    //     using (var reader = XmlReader.Create(filePath))
+    //     {
+    //         return NeatGenomeXmlIO.ReadCompleteGenomeList(reader, false, neatGenomeFactory)[0];
+    //     }
+    // }
     private IEnumerator HandlePlayerLanding(Player player)
     {
         string nodeType = route.GetNodeType(player.currentPosition);
@@ -299,6 +784,10 @@ public class GameManager : MonoBehaviour
             case "transportation":
                 if (!route.IsNodeOwned(player.currentPosition))
                 {
+                    // Skip BotPlayer's decision to buy the property
+                    if (player is BotPlayer){
+                        break;
+                    }
                     // Ask the player if they want to buy the property
                     if (player.money >= route.GetNodePrice(player.currentPosition))
                     {
@@ -306,13 +795,7 @@ public class GameManager : MonoBehaviour
                             Debug.Log("Decision: " + decision);
                             if (decision)
                             {
-                                route.BuyNode(player.currentPosition, player);
-                                Debug.Log(player.playerName + " has bought " + route.GetNodeName(player.currentPosition) + " for " + route.GetNodePrice(player.currentPosition));
-
-                                if (player.monopolyGroupCount == 3)
-                                {
-                                    DeclareWinner(player);
-                                }
+                                BuyProperty(player);
                             }
                         }));
                     }
@@ -375,6 +858,16 @@ public class GameManager : MonoBehaviour
                 break;
         }
         yield return null;
+    }
+    public void BuyProperty(Player player)
+    {
+        route.BuyNode(player.currentPosition, player);
+        Debug.Log(player.playerName + " has bought " + route.GetNodeName(player.currentPosition) + " for " + route.GetNodePrice(player.currentPosition));
+
+        if (player.monopolyGroupCount == 3)
+        {
+            DeclareWinner(player);
+        }
     }
     private void PayRent(Player player, Player owner, int rentAmount)
     {
@@ -476,7 +969,6 @@ public class GameManager : MonoBehaviour
             DeclareWinner(players[0]);
         }
     }
-
     private void DeclareWinner(Player winner)
     {
         Debug.Log(winner.playerName + " is the winner!");
@@ -526,5 +1018,32 @@ public class GameManager : MonoBehaviour
         isWaitingForUserDecision = false;
         isGameStopped = true;
         StopAllCoroutines();
+    }
+    private Player FindPlayerByID(int id)
+    {
+        return players.FirstOrDefault(p => p.playerID == id);
+    }
+
+    public GameState GenerateCurrentGameState(int playerID)
+    {
+        // Generate and return the current game state for the specified player
+        GameState currentState = new GameState
+        {
+            CurrentPlayerID = playerID,
+            Players = players.Select(p => p.GetPlayerState()).ToList(),
+            Properties = route.properties.Select(p => new PropertyState
+            {
+                PropertyName = p.name,
+                PropertyID = p.ID,
+                IsOwned = p.owner != null,
+                OwnerID = p.owner != null ? p.owner.playerID : -1,
+                Price = p.price,
+                Group = p.group
+            }).ToList(),
+            CurrentPosition = players.FirstOrDefault(p => p.playerID == playerID)?.currentPosition ?? 0,
+            PlayerFunds = players.FirstOrDefault(p => p.playerID == playerID)?.money ?? 0f
+            // Add other necessary game state details
+        };
+        return currentState;
     }
 }

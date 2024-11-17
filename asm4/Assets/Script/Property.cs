@@ -10,4 +10,8 @@ public class Property : MonoBehaviour
         this.price = price;
         this.group = group;
     }
+    public Property Clone()
+    {
+        return new Property(this.name, this.price, this.group);
+    }
 }

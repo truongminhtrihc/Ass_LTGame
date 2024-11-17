@@ -19,7 +19,7 @@ public class DiceRoller : MonoBehaviour
     {
         rolling = true;  // Set rolling to true at the start of the roll
         int randomDiceSide = 0;
-        for (int i = 0; i <= 10; i++)
+        for (int i = 0; i <= 6; i++)
         {
             randomDiceSide = Random.Range(0, 6);
             rend.sprite = diceSides[randomDiceSide];

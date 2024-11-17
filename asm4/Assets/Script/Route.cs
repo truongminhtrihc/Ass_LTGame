@@ -1,19 +1,35 @@
 using UnityEngine;
 using System.Collections.Generic;
-
 using System.IO;
+
 [System.Serializable]
 public class NodeInfo
 {
+    public int ID; // Added ID field
     public string name;
     public string type;
     public int price;
     public int group;
     public Player owner = null;
+
     public static NodeInfo[] CreateFromJSON(string jsonString)
     {
         NodeInfoList nodeInfoList = JsonUtility.FromJson<NodeInfoList>(jsonString);
         return nodeInfoList?.nodes;
+    }
+
+    // Clone method for deep copying
+    public NodeInfo Clone()
+    {
+        return new NodeInfo
+        {
+            ID = this.ID,
+            name = this.name,
+            type = this.type,
+            price = this.price,
+            group = this.group,
+            owner = this.owner
+        };
     }
 }
 [System.Serializable]
@@ -29,22 +45,56 @@ public class Route : MonoBehaviour
 
     [SerializeField]
     private NodeInfo[] nodeInfoList;
-    private void OnDrawGizmos()
+
+    // Public property to expose nodeInfoList
+    public NodeInfo[] properties => nodeInfoList;
+
+    [Header("JSON Data Path")]
+    [Tooltip("Relative path to the JSON file from the project's Assets folder.")]
+    public string jsonFilePath = "data.json"; // Ensure this path is correct
+
+    private void Awake()
     {
-        // Set the color for the gizmos
-        Gizmos.color = Color.red;
-
-        // Fill the node list with child transforms
+        // Initialize nodes and load JSON data
         FillNodes();
+        LoadJSONData();
+    }
 
-        string path = Application.dataPath + "/data.json";
+    private void Start()
+    {
+        // Optional: Initialize or verify data after loading
+        if (nodeInfoList == null || nodeInfoList.Length == 0)
+        {
+            Debug.LogError("No properties loaded. Please check the JSON file.");
+        }
+        else
+        {
+            Debug.Log("Properties loaded successfully.");
+            PrintAllPropertyIDs(); // Example method to print IDs
+        }
+    }
+
+    private void LoadJSONData()
+    {
+        string path = Path.Combine(Application.dataPath, jsonFilePath);
         if (!File.Exists(path))
         {
             Debug.LogError("JSON data file not found at: " + path);
             return;
         }
+
         string json = File.ReadAllText(path);
         nodeInfoList = NodeInfo.CreateFromJSON(json);
+
+        if (nodeInfoList == null || nodeInfoList.Length == 0)
+        {
+            Debug.LogError("Failed to parse JSON data or data is empty.");
+        }
+    }
+    private void OnDrawGizmos()
+    {
+        // Set the color for the gizmos
+        Gizmos.color = Color.red;
 
         // Draw lines between the nodes
         for (int i = 0; i < childNodeList.Count; i++)
@@ -177,6 +227,21 @@ public class Route : MonoBehaviour
             {
                 nodeInfo.price /= 2;
             }
+        }
+    }
+    // Example method to print all property IDs
+    public void PrintAllPropertyIDs()
+    {
+        if (nodeInfoList == null || nodeInfoList.Length == 0)
+        {
+            Debug.LogError("PrintAllPropertyIDs: No properties loaded to print.");
+            return;
+        }
+
+        Debug.Log("Listing all Property IDs:");
+        foreach (NodeInfo node in nodeInfoList)
+        {
+            Debug.Log($"Property ID: {node.ID}, Name: {node.name}");
         }
     }
 }

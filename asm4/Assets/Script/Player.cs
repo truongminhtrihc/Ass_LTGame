@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
+using System.Linq;
 public class Player : MonoBehaviour
 {
     public string playerName;
@@ -23,6 +24,18 @@ public class Player : MonoBehaviour
         propertyList = new List<Property>();
     }
     
+    public virtual void Initialize()
+    {
+        money = 1500;
+        livePreserver = 0;
+        isInJail = false;
+        hasFreeJailCard = false;
+        jailTurns = 0;
+        currentPosition = 0;
+        monopolyGroupCount = 0;
+        propertyList = new List<Property>();
+    }
+
     public int GetValueAllProperties()
     {
         int value = 0;
@@ -32,6 +45,17 @@ public class Player : MonoBehaviour
         }
         return value;
     }
-
-
+    // Method to convert Player to PlayerState
+    public PlayerState GetPlayerState()
+    {
+        return new PlayerState
+        {
+            PlayerName = this.playerName,
+            PlayerID = this.playerID,
+            Funds = this.money,
+            OwnedProperties = this.propertyList.Select(p => p.Clone()).ToList(),
+            IsInJail = this.isInJail
+            // Add other necessary player state details
+        };
+    }
 }

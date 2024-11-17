@@ -2144,6 +2144,7 @@ Transform:
   m_LocalScale: {x: 0.51001, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1313551376}
   - {fileID: 1951074912}
   - {fileID: 1543728585}
   - {fileID: 1122541850}
@@ -2165,6 +2166,9 @@ MonoBehaviour:
   diceRoller1: {fileID: 1543728583}
   diceRoller2: {fileID: 1122541851}
   route: {fileID: 1951074911}
+  currentTurn: 0
+  playerCanvasPrefab: {fileID: 6519730044917224504, guid: f82473306f5c4fe49bb026bfc20462f1, type: 3}
+  uiParent: {fileID: 1313551376}
 --- !u!1 &1301586609
 GameObject:
   m_ObjectHideFlags: 0
@@ -2301,6 +2305,37 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1313551375
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1313551376}
+  m_Layer: 0
+  m_Name: UIParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1313551376
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1313551375}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3468.8167, y: -7.625, z: -3.8871918}
+  m_LocalScale: {x: 1.9607458, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1300527353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1329098360
 GameObject:
@@ -3168,186 +3203,223 @@ MonoBehaviour:
   - {fileID: 1032118646}
   - {fileID: 1738728867}
   nodeInfoList:
-  - name: GO
+  - ID: 0
+    name: GO
     type: start
     price: 0
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE1
+  - ID: 0
+    name: HOUSE1
     type: property
     price: 60
     group: 1
     owner: {fileID: 0}
-  - name: HOUSE2
+  - ID: 0
+    name: HOUSE2
     type: property
     price: 60
     group: 1
     owner: {fileID: 0}
-  - name: TAX1
+  - ID: 0
+    name: TAX1
     type: tax
     price: 200
     group: 0
     owner: {fileID: 0}
-  - name: BUS1
+  - ID: 0
+    name: BUS1
     type: transportation
     price: 200
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE3
+  - ID: 0
+    name: HOUSE3
     type: property
     price: 100
     group: 2
     owner: {fileID: 0}
-  - name: HOUSE4
+  - ID: 0
+    name: HOUSE4
     type: property
     price: 100
     group: 2
     owner: {fileID: 0}
-  - name: HOUSE5
+  - ID: 0
+    name: HOUSE5
     type: property
     price: 120
     group: 2
     owner: {fileID: 0}
-  - name: HOUSE6
+  - ID: 0
+    name: HOUSE6
     type: property
     price: 140
     group: 3
     owner: {fileID: 0}
-  - name: JAIL
+  - ID: 0
+    name: JAIL
     type: jail
     price: 0
     group: 0
     owner: {fileID: 0}
-  - name: UTIL1
+  - ID: 0
+    name: UTIL1
     type: util
     price: 150
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE7
+  - ID: 0
+    name: HOUSE7
     type: property
     price: 140
     group: 3
     owner: {fileID: 0}
-  - name: HOUSE8
+  - ID: 0
+    name: HOUSE8
     type: property
     price: 160
     group: 3
     owner: {fileID: 0}
-  - name: BUS2
+  - ID: 0
+    name: BUS2
     type: transportation
     price: 200
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE9
+  - ID: 0
+    name: HOUSE9
     type: property
     price: 180
     group: 4
     owner: {fileID: 0}
-  - name: HOUSE10
+  - ID: 0
+    name: HOUSE10
     type: property
     price: 180
     group: 4
     owner: {fileID: 0}
-  - name: HOUSE11
+  - ID: 0
+    name: HOUSE11
     type: property
     price: 200
     group: 4
     owner: {fileID: 0}
-  - name: HOUSE12
+  - ID: 0
+    name: HOUSE12
     type: property
     price: 220
     group: 5
     owner: {fileID: 0}
-  - name: PARKING
+  - ID: 0
+    name: PARKING
     type: free
     price: 0
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE13
+  - ID: 0
+    name: HOUSE13
     type: property
     price: 220
     group: 5
     owner: {fileID: 0}
-  - name: HOUSE14
+  - ID: 0
+    name: HOUSE14
     type: property
     price: 240
     group: 5
     owner: {fileID: 0}
-  - name: BUS3
+  - ID: 0
+    name: BUS3
     type: transportation
     price: 200
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE15
+  - ID: 0
+    name: HOUSE15
     type: property
     price: 260
     group: 6
     owner: {fileID: 0}
-  - name: HOUSE16
+  - ID: 0
+    name: HOUSE16
     type: property
     price: 260
     group: 6
     owner: {fileID: 0}
-  - name: UTIL2
+  - ID: 0
+    name: UTIL2
     type: util
     price: 150
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE17
+  - ID: 0
+    name: HOUSE17
     type: property
     price: 280
     group: 6
     owner: {fileID: 0}
-  - name: HOUSE18
+  - ID: 0
+    name: HOUSE18
     type: property
     price: 300
     group: 7
     owner: {fileID: 0}
-  - name: GOJAIL
+  - ID: 0
+    name: GOJAIL
     type: jail
     price: 0
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE19
+  - ID: 0
+    name: HOUSE19
     type: property
     price: 300
     group: 7
     owner: {fileID: 0}
-  - name: HOUSE20
+  - ID: 0
+    name: HOUSE20
     type: property
     price: 320
     group: 7
     owner: {fileID: 0}
-  - name: BUS4
+  - ID: 0
+    name: BUS4
     type: transportation
     price: 200
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE21
+  - ID: 0
+    name: HOUSE21
     type: property
     price: 350
     group: 8
     owner: {fileID: 0}
-  - name: TAX2
+  - ID: 0
+    name: TAX2
     type: tax
     price: 75
     group: 0
     owner: {fileID: 0}
-  - name: HOUSE22
+  - ID: 0
+    name: HOUSE22
     type: property
     price: 400
     group: 8
     owner: {fileID: 0}
-  - name: TREASURE
+  - ID: 0
+    name: TREASURE
     type: treasure
     price: 0
     group: 0
     owner: {fileID: 0}
-  - name: LIVE PRESERVER
+  - ID: 0
+    name: LIVE PRESERVER
     type: live
     price: 0
     group: 0
     owner: {fileID: 0}
+  jsonFilePath: data.json
 --- !u!4 &1951074912
 Transform:
   m_ObjectHideFlags: 0
